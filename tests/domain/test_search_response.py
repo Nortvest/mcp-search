@@ -1,6 +1,4 @@
-import pytest
 
-from pydantic import ValidationError
 
 from src.domain.models import SearchResponse, SearchResult
 
@@ -28,8 +26,8 @@ class TestSearchResponse:
     def test_deserialization(self):
         data = {
             "results": [
-                {"title": "T", "url": "http://x.com", "snippet": "S"}
-            ]
+                {"title": "T", "url": "http://x.com", "snippet": "S"},
+            ],
         }
         response = SearchResponse(**data)
         assert len(response.results) == 1

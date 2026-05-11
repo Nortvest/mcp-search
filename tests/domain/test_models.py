@@ -1,8 +1,7 @@
 import pytest
-
 from pydantic import ValidationError
 
-from src.domain.models import SearchQuery, SearchResult, ContentResult
+from src.domain.models import ContentResult, SearchQuery, SearchResult
 
 
 class TestSearchQuery:
