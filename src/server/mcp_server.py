@@ -1,14 +1,12 @@
 import logging
 
-from fastmcp import FastMCP, Context
+from fastmcp import Context, FastMCP
 from fastmcp.server.dependencies import CurrentContext
 from mcp.types import Icon
 
 from src.server.schemas import GetResultOutput, SearchOutput
-
 from src.services.content_service import ContentFetchService
 from src.services.search_service import SearchService
-
 
 mcp = FastMCP("mcp-search")
 
@@ -16,7 +14,7 @@ mcp = FastMCP("mcp-search")
 @mcp.tool(
     name="search",
     description="Search the internet using a configured search engine.",
-    icons=[Icon(src="https://docs.searxng.org/_static/searxng-wordmark.svg")],
+    icons=[Icon(src="https://docs.searxng.org/_static/searxng-wordmark.svg", mimeType="image/svg+xml")],
 )
 async def search(  # noqa: PLR0913 PLR0917
     query: str,

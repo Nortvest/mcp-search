@@ -1,5 +1,6 @@
 from typing import Any
 
+import httpx
 import pytest
 
 from src.adapters.base import ContentFetcher, EngineFetcher, SearchEngineAdapter
@@ -36,20 +37,18 @@ class TestContentFetcher:
 
 class TestEngineFetcher:
     def test_cannot_instantiate_abstract(self) -> None:
+        http_client = httpx.AsyncClient()
         with pytest.raises(TypeError):
-            _ef = EngineFetcher(http_client=None, base_url="http://test.com")  # type: ignore[abstract]
+            _ef = EngineFetcher(http_client=http_client, base_url="http://test.com")  # type: ignore[abstract]
 
     def test_concrete_subclass_works(self) -> None:
-        class MockHttpClient:
-            pass
-
         class TestFetcher(EngineFetcher):
             async def fetch(self, _params: dict[str, Any]) -> SearchResponse:
                 return SearchResponse(results=[])
 
-        client = MockHttpClient()
-        fetcher = TestFetcher(http_client=client, base_url="http://test.com", api_key="key")
+        http_client = httpx.AsyncClient()
+        fetcher = TestFetcher(http_client=http_client, base_url="http://test.com", api_key="key")
         assert isinstance(fetcher, EngineFetcher)
-        assert fetcher.http_client is client
+        assert fetcher.http_client is http_client
         assert fetcher.base_url == "http://test.com"
         assert fetcher.api_key == "key"
