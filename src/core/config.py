@@ -1,6 +1,7 @@
 import os
 from functools import cached_property
 
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -23,6 +24,11 @@ class AppSettings(BaseSettings):
     log_level: str = "INFO"
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+
+    @field_validator("log_level", mode="before")
+    @classmethod
+    def normalize_log_level(cls, v: str) -> str:
+        return v.upper()
 
     @cached_property
     def engines(self) -> dict[str, EngineConfig]:  # noqa: PLR0915
