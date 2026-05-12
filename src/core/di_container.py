@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
@@ -19,13 +17,13 @@ class DependencyContainer:
         self._content_fetcher: "ContentFetcher | None" = None
         self._cached_adapters: dict[str, "SearchEngineAdapter"] = {}
 
-    def build(self) -> DependencyContainer:
+    def build(self) -> "DependencyContainer":
         """Perform all heavy initialization. Called once at startup."""
         from src.core.http_client import HttpClient  # noqa: PLC0415
 
         from src.core.logger import setup_logger  # noqa: PLC0415
 
-        self._logger = setup_logger(self.settings.log_level)
+        setup_logger(self.settings.log_level)
         self._http_client = HttpClient(
             timeout=self.settings.request_timeout,
             max_content_length=self.settings.max_content_length,
@@ -36,7 +34,7 @@ class DependencyContainer:
         return self
 
     @classmethod
-    def create(cls, settings: "AppSettings | None" = None) -> DependencyContainer:
+    def create(cls, settings: "AppSettings | None" = None) -> "DependencyContainer":
         """Lazy factory - loads settings but doesn't build yet."""
         if settings is None:
             from src.core.config import AppSettings  # noqa: PLC0415
@@ -91,7 +89,3 @@ class DependencyContainer:
 
     def get_content_fetcher(self) -> "ContentFetcher":
         return self._content_fetcher
-
-    @property
-    def logger(self) -> Any:
-        return self._logger

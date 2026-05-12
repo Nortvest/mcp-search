@@ -1,12 +1,18 @@
+from __future__ import annotations
+
 import logging
 import sys
 
 
-def setup_logger(level: str = "INFO") -> logging.Logger:
-    logger = logging.getLogger("mcp-search")
+def setup_logger(level: str = "INFO") -> None:
     log_level = getattr(logging, level.upper(), logging.INFO)
-    logger.setLevel(log_level)
 
+    logger = logging.getLogger("mcp-search")
+    for handler in logger.handlers[:]:
+        logger.removeHandler(handler)
+        handler.close()
+
+    logger.setLevel(log_level)
     if not logger.handlers:
         handler = logging.StreamHandler(sys.stdout)
         handler.setLevel(log_level)
@@ -16,5 +22,3 @@ def setup_logger(level: str = "INFO") -> logging.Logger:
         )
         handler.setFormatter(formatter)
         logger.addHandler(handler)
-
-    return logger
