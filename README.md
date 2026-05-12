@@ -33,7 +33,7 @@ ENGINE_SEARXNG_BASE_URL=http://localhost:8081
 3. Start both MCP Search and a SearXNG instance:
 
 ```bash
-docker-compose --profile all up -d
+docker compose --profile all up -d
 ```
 
 MCP Search will be available at `http://localhost:8080`.
