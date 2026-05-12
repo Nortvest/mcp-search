@@ -102,7 +102,7 @@ class TestSearXNGEngineFetcher:
         )
         await fetcher.fetch({"q": "test"})
         call_kwargs = mock_http_client.get.call_args
-        assert call_kwargs.kwargs["url"] == "http://searxng.local/json"
+        assert call_kwargs.kwargs["url"] == "http://searxng.local/search"
 
     def test_fetcher_stores_base_url(self, mock_http_client: MagicMock) -> None:
         fetcher = SearXNGEngineFetcher(

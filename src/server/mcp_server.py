@@ -1,12 +1,10 @@
 import logging
-from typing import Annotated
 
 from fastmcp import FastMCP, Context
 from fastmcp.server.dependencies import CurrentContext
 from mcp.types import Icon
 
 from src.server.schemas import GetResultOutput, SearchOutput
-from src.server.depends import get_content_fetcher, get_search_service
 
 from src.services.content_service import ContentFetchService
 from src.services.search_service import SearchService
@@ -29,7 +27,7 @@ async def search(  # noqa: PLR0913 PLR0917
 
     ctx: Context = CurrentContext(),
 ) -> SearchOutput:
-    logging.getLogger("mcp-search").info(f"Search by query: {query}. {language=} | {categories=} | {num_results=}")
+    logging.getLogger("mcp-search").info(f"Search by {query=}. {language=}. {categories=}. {num_results=}")
 
     container: "DependencyContainer" = ctx.fastmcp.container  # type: ignore[attr-defined]
     search_adapter = container.get_adapter(container.settings.default_engine)
