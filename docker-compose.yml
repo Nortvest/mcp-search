@@ -1,0 +1,15 @@
+services:
+  mcp-search:
+    build: .
+    ports:
+      - "8080:8080"
+    env_file: .env
+    restart: unless-stopped
+
+  searxng:
+    profiles: ["all"]
+    image: searxng/searxng:latest
+    ports:
+      - "8081:8080"
+    volumes:
+      - ./searxng/settings.yml:/etc/searxng/settings.yml
