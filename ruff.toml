@@ -23,7 +23,7 @@ select = [
     "INT", "ARG", "PTH", "TD", "FIX", "ERA", "PL", "TRY", "FLY", "PERF", "FURB", "RUF", "Q"
 ]
 ignore = [
-    "RUF001", "RUF002", "RUF003", "FA100", "FA102", "PLC0206", "ANN401", "TID251",
+    "RUF001", "RUF002", "RUF003", "FA100", "FA102", "PLC0206", "ANN401",
     "FIX002", "TD003", "TD002",  # Ignore TODOs
     "RUF029", "EM101",
     # Allow f-string logging
@@ -52,6 +52,7 @@ ignore = [
 ]
 
 [lint.flake8-tidy-imports.banned-api]
+"__future__.annotations".msg = "Do not use this."
 "typing.Dict".msg = "Use `dict` instead."
 "typing.List".msg = "Use `list` instead."
 "typing.Set".msg = "Use `set` instead."
