@@ -1,15 +1,15 @@
-from typing import TYPE_CHECKING, Annotated
+import logging
+from typing import Annotated
 
-from fastmcp import FastMCP
-from fastmcp.dependencies import Depends
+from fastmcp import FastMCP, Context
+from fastmcp.server.dependencies import CurrentContext
 from mcp.types import Icon
 
 from src.server.schemas import GetResultOutput, SearchOutput
 from src.server.depends import get_content_fetcher, get_search_service
 
-if TYPE_CHECKING:
-    from src.services.content_service import ContentFetchService
-    from src.services.search_service import SearchService
+from src.services.content_service import ContentFetchService
+from src.services.search_service import SearchService
 
 
 mcp = FastMCP("mcp-search")
@@ -21,14 +21,20 @@ mcp = FastMCP("mcp-search")
     icons=[Icon(src="https://docs.searxng.org/_static/searxng-wordmark.svg")],
 )
 async def search(  # noqa: PLR0913 PLR0917
-    service: Annotated["SearchService", Depends(get_search_service)],
-
     query: str,
     language: str = "en",
     categories: str = "general",
     engine: str | None = None,
     num_results: int = 10,
+
+    ctx: Context = CurrentContext(),
 ) -> SearchOutput:
+    logging.getLogger("mcp-search").info(f"Search by query: {query}. {language=} | {categories=} | {num_results=}")
+
+    container: "DependencyContainer" = ctx.fastmcp.container  # type: ignore[attr-defined]
+    search_adapter = container.get_adapter(container.settings.default_engine)
+    service = SearchService(adapter=search_adapter)
+
     results = await service.search(
         query=query, engine=engine, num_results=num_results, language=language, categories=categories,
     )
@@ -40,10 +46,15 @@ async def search(  # noqa: PLR0913 PLR0917
     description="Fetch full content from a URL returned by search.",
 )
 async def fetch_website(
-    service: Annotated["ContentFetchService", get_content_fetcher],
-
     url: str,
+
+    ctx: Context = CurrentContext(),
 ) -> GetResultOutput:
+    logging.getLogger("mcp-search").info(f"Fetch Website {url}")
+
+    container: "DependencyContainer" = ctx.fastmcp.container  # type: ignore[attr-defined]
+    content_fetcher = container.get_content_fetcher()
+    service = ContentFetchService(content_fetcher=content_fetcher)
 
     content = await service.fetch(url=url)
     return GetResultOutput(url=content.url, title=content.title, text=content.text)

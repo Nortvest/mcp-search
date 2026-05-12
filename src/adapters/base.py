@@ -1,8 +1,11 @@
 import logging
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from src.domain.models import ContentResult, SearchQuery, SearchResponse, SearchResult
+
+if TYPE_CHECKING:
+    import httpx
 
 
 class SearchEngineAdapter(ABC):
@@ -30,7 +33,7 @@ class ContentFetcher(ABC):
 
 
 class EngineFetcher(ABC):
-    def __init__(self, http_client: Any, base_url: str, api_key: str | None = None) -> None:
+    def __init__(self, http_client: "httpx.AsyncClient", base_url: str, api_key: str | None = None) -> None:
         self.http_client = http_client
         self.base_url = base_url
         self.api_key = api_key

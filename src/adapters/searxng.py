@@ -22,10 +22,13 @@ class SearXNGEngineFetcher(EngineFetcher):
         self._logger.debug("SearXNGEngineFetcher.fetch url=%s params=%s", f"{self.base_url}/json", params)
 
         response = await self.http_client.get(
-            url=f"{self.base_url}/json", params=params, headers=headers,
+            url=f"{self.base_url}/search", params=params, headers=headers,
         )
 
-        data = json.loads(response.read())
+        try:
+            data = json.loads(response.read())
+        except json.decoder.JSONDecodeError:
+            raise RuntimeError(f"{response.status_code} | {response.read()}")
 
         results = []
         for item in data.get("results", []):
@@ -52,4 +55,4 @@ class SearXNGAdapter(SearchEngineAdapter):
             "language": query.language,
             "engines": "google,bing,duckduckgo",
         })
-        return response.results
+        return response.results[:query.num_results]
