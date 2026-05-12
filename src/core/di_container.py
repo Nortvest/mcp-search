@@ -20,7 +20,6 @@ class DependencyContainer:
     def build(self) -> "DependencyContainer":
         """Perform all heavy initialization. Called once at startup."""
         from src.core.http_client import HttpClient  # noqa: PLC0415
-
         from src.core.logger import setup_logger  # noqa: PLC0415
 
         setup_logger(self.settings.log_level)
@@ -71,8 +70,6 @@ class DependencyContainer:
             http_client=self._http_client,
         )
 
-    # --- accessors (cached adapter instantiation) ---
-
     def get_adapter(self, engine_name: str) -> "SearchEngineAdapter":
         """Return the cached adapter instance for an engine. Same instance on every call."""
         if engine_name in self._cached_adapters:
@@ -88,4 +85,6 @@ class DependencyContainer:
         return adapter
 
     def get_content_fetcher(self) -> "ContentFetcher":
+        if self._content_fetcher is None:
+            raise RuntimeError("DependencyContainer not built - call build() first")
         return self._content_fetcher

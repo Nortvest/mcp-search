@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import Any
+
 import pytest
 
 from src.adapters.base import ContentFetcher, EngineFetcher, SearchEngineAdapter
@@ -7,21 +11,21 @@ from src.domain.models import ContentResult, SearchQuery, SearchResponse, Search
 class TestSearchEngineAdapter:
     def test_cannot_instantiate_abstract(self) -> None:
         with pytest.raises(TypeError):
-            SearchEngineAdapter()
+            _adapter = SearchEngineAdapter(fetcher=None, config=None)  # type: ignore[arg-type, abstract]
 
     def test_concrete_subclass_works(self) -> None:
         class TestAdapter(SearchEngineAdapter):
             async def search(self, query: SearchQuery) -> list[SearchResult]:  # noqa: ARG002
                 return [SearchResult(title="T", url="http://t.com", snippet="S")]
 
-        adapter = TestAdapter()
+        adapter = TestAdapter(fetcher=None, config=None)  # type: ignore[arg-type]
         assert isinstance(adapter, SearchEngineAdapter)
 
 
 class TestContentFetcher:
     def test_cannot_instantiate_abstract(self) -> None:
         with pytest.raises(TypeError):
-            ContentFetcher()
+            _fetcher = ContentFetcher()  # type: ignore[abstract]
 
     def test_concrete_subclass_works(self) -> None:
         class TestFetcher(ContentFetcher):
@@ -35,14 +39,14 @@ class TestContentFetcher:
 class TestEngineFetcher:
     def test_cannot_instantiate_abstract(self) -> None:
         with pytest.raises(TypeError):
-            EngineFetcher(http_client=None, base_url="http://test.com")
+            _ef = EngineFetcher(http_client=None, base_url="http://test.com")  # type: ignore[abstract]
 
     def test_concrete_subclass_works(self) -> None:
         class MockHttpClient:
             pass
 
         class TestFetcher(EngineFetcher):
-            async def fetch(self, params: dict) -> SearchResponse:  # noqa: ARG002
+            async def fetch(self, _params: dict[str, Any]) -> SearchResponse:
                 return SearchResponse(results=[])
 
         client = MockHttpClient()
