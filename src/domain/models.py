@@ -31,3 +31,9 @@ class ContentResult(BaseModel):
 
 class SearchResponse(BaseModel):
     results: list[SearchResult]
+
+
+class SearchBatchResult(BaseModel):
+    query: str
+    results: list[SearchResult]
+    error: str | None = None

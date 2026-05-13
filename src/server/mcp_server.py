@@ -5,7 +5,8 @@ from fastmcp import Context, FastMCP
 from fastmcp.server.dependencies import CurrentContext
 from mcp.types import Icon
 
-from src.server.schemas import GetResultOutput, SearchOutput
+from src.domain.models import SearchQuery
+from src.server.schemas import GetResultOutput, SearchBatchOutput, SearchInput, SearchOutput
 from src.services.content_service import ContentFetchService
 from src.services.search_service import SearchService
 
@@ -20,25 +21,59 @@ mcp = FastMCP("mcp-search")
     description="Search the internet using a configured search engine.",
     icons=[Icon(src="https://docs.searxng.org/_static/searxng-wordmark.svg", mimeType="image/svg+xml")],
 )
-async def search(  # noqa: PLR0913 PLR0917
-    query: str,
-    language: str = "en",
-    categories: str = "general",
-    engine: str | None = None,
-    num_results: int = 10,
+async def search(
+    query: SearchInput,
 
     ctx: Context = CurrentContext(),  # noqa: B008
 ) -> SearchOutput:
-    logging.getLogger("mcp-search").info(f"Search by {query=}. {language=}. {categories=}. {num_results=}")
+    logging.getLogger("mcp-search").info(
+        f"Search by {query.query=}. {query.language=}. {query.categories=}. {query.num_results=}",
+    )
 
     container: "DependencyContainer" = ctx.fastmcp.container  # type: ignore[attr-defined]
     search_adapter = container.get_adapter(container.settings.default_engine)
     service = SearchService(adapter=search_adapter)
 
-    results = await service.search(
-        query=query, engine=engine, num_results=num_results, language=language, categories=categories,
+    item = SearchQuery(
+        query=query.query,
+        language=query.language,
+        categories=query.categories,
+        engine=query.engine or "",
+        num_results=query.num_results,
     )
+
+    results = await service.search(item)
     return SearchOutput(results=results)
+
+
+@mcp.tool(
+    name="search_batch",
+    description="Search the internet using a configured search engine with multiple queries at once.",
+    icons=[Icon(src="https://docs.searxng.org/_static/searxng-wordmark.svg", mimeType="image/svg+xml")],
+)
+async def search_batch(
+    queries: list[SearchInput],
+
+    ctx: Context = CurrentContext(),  # noqa: B008
+) -> SearchBatchOutput:
+    logging.getLogger("mcp-search").info(f"Batch search with {len(queries)} queries")
+
+    container: "DependencyContainer" = ctx.fastmcp.container  # type: ignore[attr-defined]
+    search_adapter = container.get_adapter(container.settings.default_engine)
+    service = SearchService(adapter=search_adapter)
+
+    batch_items = [
+        SearchQuery(
+            query=q.query,
+            language=q.language,
+            categories=q.categories,
+            engine=q.engine or "",
+            num_results=q.num_results,
+        )
+        for q in queries
+    ]
+    results = await service.search_batch(queries=batch_items)
+    return SearchBatchOutput(results=results)
 
 
 @mcp.tool(

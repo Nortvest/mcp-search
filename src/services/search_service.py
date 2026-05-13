@@ -1,5 +1,5 @@
 from src.adapters.base import SearchEngineAdapter
-from src.domain.models import SearchQuery, SearchResult
+from src.domain.models import SearchBatchResult, SearchQuery, SearchResult
 
 
 class SearchService:
@@ -8,17 +8,27 @@ class SearchService:
 
     async def search(
         self,
-        query: str,
-        engine: str | None = None,
-        num_results: int = 10,
-        language: str = "en",
-        categories: str = "general",
+        query: SearchQuery,
     ) -> list[SearchResult]:
-        search_query = SearchQuery(
-            query=query,
-            engine=engine or "",
-            num_results=num_results,
-            language=language,
-            categories=categories,
-        )
-        return await self._adapter.search(search_query)
+        return await self._adapter.search(query)
+
+    async def search_batch(
+        self,
+        queries: list[SearchQuery],
+    ) -> list[SearchBatchResult]:
+        results: list[SearchBatchResult] = []
+        for item in queries:
+            try:
+                engine = item.engine or ""
+                search_query = SearchQuery(
+                    query=item.query,
+                    engine=engine,
+                    num_results=item.num_results,
+                    language=item.language,
+                    categories=item.categories,
+                )
+                search_results = await self._adapter.search(search_query)
+                results.append(SearchBatchResult(query=item.query, results=search_results))
+            except ValueError as e:
+                results.append(SearchBatchResult(query=item.query, results=[], error=str(e)))
+        return results

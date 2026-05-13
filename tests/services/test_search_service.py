@@ -22,7 +22,7 @@ class TestSearchService:
         results = [SearchResult(title="T", url="http://t.com", snippet="S")]
         mock_adapter.search = AsyncMock(return_value=results)
 
-        result = await search_service.search(query="test query")
+        result = await search_service.search(SearchQuery(query="test query", engine=""))
         assert len(result) == 1
         assert result[0].title == "T"
 
@@ -32,7 +32,7 @@ class TestSearchService:
     ) -> None:
         mock_adapter.search = AsyncMock(return_value=[])
 
-        await search_service.search(query="python tutorial", language="ru", categories="news")
+        await search_service.search(SearchQuery(query="python tutorial", engine="", language="ru", categories="news"))
         call_args = mock_adapter.search.call_args[0][0]
         assert isinstance(call_args, SearchQuery)
         assert call_args.query == "python tutorial"
@@ -44,7 +44,7 @@ class TestSearchService:
         self, search_service: SearchService, mock_adapter: AsyncMock,
     ) -> None:
         mock_adapter.search = AsyncMock(return_value=[])
-        await search_service.search(query="test")
+        await search_service.search(SearchQuery(query="test", engine=""))
         call_args = mock_adapter.search.call_args[0][0]
         assert call_args.language == "en"
 
@@ -53,7 +53,7 @@ class TestSearchService:
         self, search_service: SearchService, mock_adapter: AsyncMock,
     ) -> None:
         mock_adapter.search = AsyncMock(return_value=[])
-        await search_service.search(query="test")
+        await search_service.search(SearchQuery(query="test", engine=""))
         call_args = mock_adapter.search.call_args[0][0]
         assert call_args.categories == "general"
 
@@ -62,7 +62,7 @@ class TestSearchService:
         self, search_service: SearchService, mock_adapter: AsyncMock,
     ) -> None:
         mock_adapter.search = AsyncMock(return_value=[])
-        await search_service.search(query="test", num_results=5)
+        await search_service.search(SearchQuery(query="test", engine="", num_results=5))
         call_args = mock_adapter.search.call_args[0][0]
         assert call_args.num_results == 5
 
@@ -71,6 +71,6 @@ class TestSearchService:
         self, search_service: SearchService, mock_adapter: AsyncMock,
     ) -> None:
         mock_adapter.search = AsyncMock(return_value=[])
-        await search_service.search(query="test", engine="BRAVE")
+        await search_service.search(SearchQuery(query="test", engine="BRAVE"))
         call_args = mock_adapter.search.call_args[0][0]
         assert call_args.engine == "BRAVE"

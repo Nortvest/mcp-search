@@ -2,7 +2,7 @@ from urllib.parse import urlparse
 
 from pydantic import BaseModel, Field, field_validator
 
-from src.domain.models import SearchResult
+from src.domain.models import SearchBatchResult, SearchResult
 
 ISO_LANGUAGE_LENGTH = 2
 
@@ -42,3 +42,7 @@ class GetResultOutput(BaseModel):
     url: str
     title: str
     text: str
+
+
+class SearchBatchOutput(BaseModel):
+    results: list[SearchBatchResult]
