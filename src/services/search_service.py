@@ -1,3 +1,5 @@
+import asyncio
+
 from src.adapters.base import SearchEngineAdapter
 from src.domain.models import SearchBatchResult, SearchQuery, SearchResult
 
@@ -12,23 +14,24 @@ class SearchService:
     ) -> list[SearchResult]:
         return await self._adapter.search(query)
 
+    async def _search_one(self, item: SearchQuery) -> SearchBatchResult:
+        search_results = await self._adapter.search(item)
+        return SearchBatchResult(query=item.query, results=search_results)
+
     async def search_batch(
         self,
         queries: list[SearchQuery],
     ) -> list[SearchBatchResult]:
+        tasks = [self._search_one(item) for item in queries]
+        gathered = await asyncio.gather(*tasks, return_exceptions=True)
+
         results: list[SearchBatchResult] = []
-        for item in queries:
-            try:
-                engine = item.engine or ""
-                search_query = SearchQuery(
-                    query=item.query,
-                    engine=engine,
-                    num_results=item.num_results,
-                    language=item.language,
-                    categories=item.categories,
-                )
-                search_results = await self._adapter.search(search_query)
-                results.append(SearchBatchResult(query=item.query, results=search_results))
-            except ValueError as e:
-                results.append(SearchBatchResult(query=item.query, results=[], error=str(e)))
+        for item, result in zip(queries, gathered, strict=True):
+            if isinstance(result, SearchBatchResult):
+                results.append(result)
+            elif isinstance(result, ValueError):
+                results.append(SearchBatchResult(query=item.query, results=[], error=str(result)))
+            else:
+                results.append(SearchBatchResult(query=item.query, results=[], error=str(result)))
+
         return results
