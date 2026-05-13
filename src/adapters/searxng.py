@@ -27,8 +27,8 @@ class SearXNGEngineFetcher(EngineFetcher):
 
         try:
             data = json.loads(response.read())
-        except json.decoder.JSONDecodeError:
-            raise RuntimeError(f"{response.status_code} | {response.read()!r}")
+        except json.decoder.JSONDecodeError as e:
+            raise RuntimeError(f"{response.status_code} | {response.read()!r}") from e
 
         results = []
         for item in data.get("results", []):

@@ -37,6 +37,6 @@ class HttpClient(httpx.AsyncClient):
         body = response.read()
         if len(body) > self.max_content_length:
             raise ValueError(
-                f"Response exceeds max content length of {self.max_content_length}. Context length: {len(body)}"
+                f"Response exceeds max content length of {self.max_content_length}. Context length: {len(body)}",
             )
         return response

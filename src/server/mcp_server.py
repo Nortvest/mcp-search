@@ -1,4 +1,5 @@
 import logging
+from typing import TYPE_CHECKING
 
 from fastmcp import Context, FastMCP
 from fastmcp.server.dependencies import CurrentContext
@@ -7,6 +8,9 @@ from mcp.types import Icon
 from src.server.schemas import GetResultOutput, SearchOutput
 from src.services.content_service import ContentFetchService
 from src.services.search_service import SearchService
+
+if TYPE_CHECKING:
+    from src.core.di_container import DependencyContainer
 
 mcp = FastMCP("mcp-search")
 
@@ -23,7 +27,7 @@ async def search(  # noqa: PLR0913 PLR0917
     engine: str | None = None,
     num_results: int = 10,
 
-    ctx: Context = CurrentContext(),
+    ctx: Context = CurrentContext(),  # noqa: B008
 ) -> SearchOutput:
     logging.getLogger("mcp-search").info(f"Search by {query=}. {language=}. {categories=}. {num_results=}")
 
@@ -44,7 +48,7 @@ async def search(  # noqa: PLR0913 PLR0917
 async def fetch_website(
     url: str,
 
-    ctx: Context = CurrentContext(),
+    ctx: Context = CurrentContext(),  # noqa: B008
 ) -> GetResultOutput:
     logging.getLogger("mcp-search").info(f"Fetch Website {url}")
 
