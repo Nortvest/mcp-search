@@ -10,7 +10,7 @@ class TestSearchQuery:
         assert query.query == "test"
         assert query.engine == "SEARXNG"
         assert query.num_results == 10
-        assert query.language == "en"
+        assert query.language == "auto"
         assert query.categories == "general"
 
     def test_custom_values(self) -> None:

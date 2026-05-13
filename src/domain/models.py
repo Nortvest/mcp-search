@@ -13,7 +13,7 @@ class SearchQuery(BaseModel):
 
     engine: str
     num_results: int = 10
-    language: str = "en"
+    language: str = "auto"
     categories: str = "general"
 
 

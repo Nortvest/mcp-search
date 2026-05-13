@@ -76,7 +76,7 @@ Searches the internet using a configured search engine.
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
 | query | string | yes | Search query |
-| language | string | no | Language code (default: `"en"`) |
+| language | string | no | Language code (default: `"auto"`) |
 | categories | string | no | SearXNG categories, comma-separated (default: `"general"`) |
 | engine | string | no | Engine name from config (default: `DEFAULT_ENGINE`) |
 | num_results | integer | no | Number of results (default: `10`, max: `50`) |

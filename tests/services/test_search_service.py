@@ -46,7 +46,7 @@ class TestSearchService:
         mock_adapter.search = AsyncMock(return_value=[])
         await search_service.search(SearchQuery(query="test", engine=""))
         call_args = mock_adapter.search.call_args[0][0]
-        assert call_args.language == "en"
+        assert call_args.language == "auto"
 
     @pytest.mark.asyncio
     async def test_search_default_categories(

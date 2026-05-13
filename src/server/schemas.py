@@ -9,7 +9,7 @@ ISO_LANGUAGE_LENGTH = 2
 
 class SearchInput(BaseModel):
     query: str
-    language: str = "en"
+    language: str = "auto"
     categories: str = "general"
     engine: str | None = None  # resolves to DEFAULT_ENGINE if not provided
     num_results: int = Field(10, ge=1, le=50)

@@ -9,7 +9,7 @@ class TestSearchInputValidation:
         data = {"query": "test query"}
         result = SearchInput.model_validate(data)
         assert result.query == "test query"
-        assert result.language == "en"
+        assert result.language == "auto"
         assert result.categories == "general"
         assert result.engine is None
         assert result.num_results == 10
