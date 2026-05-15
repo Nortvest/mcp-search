@@ -82,7 +82,7 @@ Searches the internet using a configured search engine.
 | num_results | integer | no | Number of results (default: `10`, max: `50`) |
 
 
-### Tool 2: `get_result`
+### Tool 2: `fetch_website`
 
 Fetches full content from a URL returned by search.
 
