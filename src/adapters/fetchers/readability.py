@@ -1,3 +1,4 @@
+import html
 import re
 from typing import Any
 
@@ -20,9 +21,9 @@ class ReadabilityContentFetcher(ContentFetcher):
     async def fetch(self, url: str) -> ContentResult:
         self._logger.debug("ReadabilityContentFetcher.fetch url=%s", url)
         response = await self.http_client.get(url=url)
-        html = response.read().decode("utf-8", errors="replace")
+        raw_html = response.read().decode("utf-8", errors="replace")
 
-        doc = Document(input=html)
+        doc = Document(input=raw_html)
         title, text = self._extract_content(doc, url)
         return ContentResult(url=url, title=title, text=text)
 
@@ -33,6 +34,7 @@ class ReadabilityContentFetcher(ContentFetcher):
                 title = fallback_title
             content_html = str(doc.content())
             text = re.sub(r"<[^>]+>", "", content_html)
+            text = html.unescape(text)
             text = " ".join(text.split())
         except (Unparseable, ParserError):
             self._logger.warning("ReadabilityContentFetcher failed to extract content url=%s", fallback_title)
