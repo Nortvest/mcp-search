@@ -2,7 +2,7 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from src.adapters.searxng import SearXNGAdapter, SearXNGEngineFetcher
+from src.adapters.engine.searxng import SearXNGAdapter, SearXNGEngineFetcher
 from src.core.http_client import HttpClient
 from src.domain.models import SearchQuery, SearchResult
 

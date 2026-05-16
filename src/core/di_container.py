@@ -45,7 +45,7 @@ class DependencyContainer:
 
     def _register_adapters(self) -> None:
         """Map engine type strings to adapter classes (no instantiation)."""
-        from src.adapters.searxng import SearXNGAdapter  # noqa: PLC0415
+        from src.adapters.engine.searxng import SearXNGAdapter  # noqa: PLC0415
 
         self._adapters["searxng"] = SearXNGAdapter
 
@@ -53,7 +53,7 @@ class DependencyContainer:
         """Instantiate EngineFetcher per enabled engine."""
         for cfg in self.settings.engines.values():
             if cfg.enabled and cfg.type in self._adapters:
-                from src.adapters.searxng import SearXNGEngineFetcher  # noqa: PLC0415
+                from src.adapters.engine.searxng import SearXNGEngineFetcher  # noqa: PLC0415
 
                 fetcher = SearXNGEngineFetcher(
                     http_client=self._http_client,
