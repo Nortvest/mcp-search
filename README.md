@@ -50,22 +50,26 @@ docker-compose up -d
 
 All configuration is done via environment variables in the `.env` file. See `.env.example` for all available options:
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `MCP_HOST` | Server bind address | `0.0.0.0` |
-| `MCP_PORT` | Server port | `8080` |
+| Variable | Description | Default      |
+|----------|-------------|--------------|
+| `MCP_HOST` | Server bind address | `0.0.0.0`    |
+| `MCP_PORT` | Server port | `8080`       |
 | `MCP_NAME` | MCP server name | `mcp-search` |
-| `ENGINE_SEARXNG_ENABLED` | Enable SearXNG engine | `true` |
-| `ENGINE_SEARXNG_BASE_URL` | SearXNG API URL | - |
-| `ENGINE_SEARXNG_API_KEY` | SearXNG API key (optional) | - |
-| `DEFAULT_ENGINE` | Default search engine | `SEARXNG` |
-| `MAX_CONTENT_LENGTH` | Max content fetch size in bytes | `50000` |
-| `REQUEST_TIMEOUT` | HTTP request timeout in seconds | `10` |
-| `LOG_LEVEL` | Logging level | `INFO` |
+| `ENGINE_SEARXNG_ENABLED` | Enable SearXNG engine | `true`       |
+| `ENGINE_SEARXNG_TYPE` | Engine type identifier | `searxng`    |
+| `ENGINE_SEARXNG_BASE_URL` | SearXNG API URL | -            |
+| `ENGINE_SEARXNG_API_KEY` | SearXNG API key (optional) | -            |
+| `DEFAULT_ENGINE` | Default search engine | `SEARXNG`    |
+| `MAX_CONTENT_LENGTH` | Max content fetch size in bytes | `50000`      |
+| `REQUEST_TIMEOUT` | HTTP request timeout in seconds | `10`         |
+| `SUMMARY_ENABLE` | Enable content summarization | `true`       |
+| `SUMMARY_MAX_CONTENT_LENGTH_READABILITY` | Max content length for readability parsing | `512000`     |
+| `SUMMARY_MAX_SENTENCES` | Max sentences in summarized content | `16`         |
+| `LOG_LEVEL` | Logging level | `INFO`       |
 
 ## MCP Tools
 
-The server exposes two tools via MCP JSON-RPC over HTTP.
+The server exposes three tools via MCP JSON-RPC over HTTP.
 
 ### Tool 1: `search`
 
@@ -76,13 +80,22 @@ Searches the internet using a configured search engine.
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
 | query | string | yes | Search query |
-| language | string | no | Language code (default: `"auto"`) |
+| language | string | no | Language code, must be 2-letter ISO code (default: `"auto"`) |
 | categories | string | no | SearXNG categories, comma-separated (default: `"general"`) |
 | engine | string | no | Engine name from config (default: `DEFAULT_ENGINE`) |
 | num_results | integer | no | Number of results (default: `10`, max: `50`) |
 
+### Tool 2: `search_batch`
 
-### Tool 2: `fetch_website`
+Searches using multiple queries in parallel.
+
+**Parameters:**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| queries | array of objects | yes | Array of search query objects (same parameters as `search`) |
+
+### Tool 3: `fetch_website`
 
 Fetches full content from a URL returned by search.
 
@@ -124,14 +137,16 @@ Use any public SearXNG instance (e.g., `https://search.example.com`). If the ins
 
 ## Architecture
 
-The project follows Clean Architecture principles with four layers:
+The project follows Clean Architecture principles with five layers:
 
 - **Presentation Layer** (`presentation/`) — Entry point, HTTP transport startup
+- **Server Layer** (`server/`) — MCP protocol tools and schemas
 - **Service Layer** (`services/`) — Business logic orchestration
+- **Adapters Layer** (`adapters/`) — External integrations (search engines, content fetchers)
 - **Domain Layer** (`domain/`) — Pure business entities (DTOs)
 - **Core Layer** (`core/`) — Config, logger, dependency injection
 
-Inner layers know nothing about outer layers. Dependencies flow inward only. See `.opencode/plans/project-plan.md` for the full architecture diagram and design decisions.
+Inner layers know nothing about outer layers. Dependencies flow inward only.
 
 ## Development
 
@@ -162,7 +177,7 @@ The architecture makes it easy to add new engines:
 
 1. Implement an `EngineFetcher` subclass for the new engine (receives `HttpClient` via DI, returns `SearchResponse`)
 2. Implement a `SearchEngineAdapter` subclass (only implements `search()`, receives fetcher via DI)
-3. Register in `DependencyContainer._register_adapters()` — map engine type string to class
+3. Register in `DependencyContainer.build()` — map engine type string to class
 4. Add config in `.env`: `ENGINE_<NAME>_TYPE=<engine_name>`, etc.
 
 No changes needed in domain, services, server, or presentation layers.
