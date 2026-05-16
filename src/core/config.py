@@ -14,6 +14,14 @@ class EngineConfig(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="ENGINE_", extra="ignore")
 
 
+class SummarySettings(BaseSettings):
+    enable: bool = True
+    max_words: int = 128
+    max_content_length_readability: int = 512000
+
+    model_config = SettingsConfigDict(env_prefix="SUMMARY_", env_file=".env", extra="ignore")
+
+
 class AppSettings(BaseSettings):
     host: str = "0.0.0.0"  # noqa: S104
     port: int = 8080
@@ -22,6 +30,8 @@ class AppSettings(BaseSettings):
     max_content_length: int = 50000
     request_timeout: float = 10.0
     log_level: str = "INFO"
+
+    summary: SummarySettings = SummarySettings()
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
