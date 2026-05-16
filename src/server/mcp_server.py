@@ -17,7 +17,7 @@ mcp = FastMCP("mcp-search")
 
 
 @mcp.tool(
-    name="search",
+    name="Search",
     description="Search the internet using a configured search engine.",
     icons=[Icon(src="https://docs.searxng.org/_static/searxng-wordmark.svg", mimeType="image/svg+xml")],
 )
@@ -47,7 +47,7 @@ async def search(
 
 
 @mcp.tool(
-    name="search_batch",
+    name="Search (batch)",
     description="Search the internet using a configured search engine with multiple queries at once.",
     icons=[Icon(src="https://docs.searxng.org/_static/searxng-wordmark.svg", mimeType="image/svg+xml")],
 )
@@ -77,7 +77,7 @@ async def search_batch(
 
 
 @mcp.tool(
-    name="fetch_website",
+    name="Fetch website",
     description="Fetch full content from a URL returned by search.",
 )
 async def fetch_website(
@@ -96,7 +96,7 @@ async def fetch_website(
 
 
 @mcp.tool(
-    name="fetch_and_summarize_website",
+    name="Fetch website (with summarize)",
     description="Fetch content from a URL and return a concise summary.",
 )
 async def fetch_and_summarize_website(
