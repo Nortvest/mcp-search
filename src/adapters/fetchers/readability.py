@@ -2,8 +2,8 @@ import re
 from typing import Any
 
 from lxml.etree import ParserError
-from readability.readability import Unparseable
 from readability import Document
+from readability.readability import Unparseable
 
 from src.adapters.base import ContentFetcher
 from src.core.http_client import HttpClient

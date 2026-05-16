@@ -93,3 +93,26 @@ async def fetch_website(
 
     content = await service.fetch(url=url)
     return GetResultOutput(url=content.url, title=content.title, text=content.text)
+
+
+@mcp.tool(
+    name="fetch_and_summarize_website",
+    description="Fetch content from a URL and return a concise summary.",
+)
+async def fetch_and_summarize_website(
+    url: str,
+
+    ctx: Context = CurrentContext(),  # noqa: B008
+) -> GetResultOutput:
+    logging.getLogger("mcp-search").info(f"Fetch and Summarize Website {url}")
+
+    container: "DependencyContainer" = ctx.fastmcp.container  # type: ignore[attr-defined]
+    content_fetcher = container.get_content_fetcher()
+    summarized_content_fetcher = container.get_summarized_content_fetcher()
+    service = ContentFetchService(
+        content_fetcher=content_fetcher,
+        summarized_content_fetcher=summarized_content_fetcher,
+    )
+
+    content = await service.summarize_fetch(url=url)
+    return GetResultOutput(url=content.url, title=content.title, text=content.text)

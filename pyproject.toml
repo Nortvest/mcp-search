@@ -48,5 +48,5 @@ testpaths = ["tests"]
 asyncio_mode = "auto"
 
 [[tool.mypy.overrides]]
-module = ["sumy.*", "langdetect.*", "readability.*"]
+module = ["sumy.*", "langdetect.*", "readability.*", "lxml.etree"]
 ignore_missing_imports = true

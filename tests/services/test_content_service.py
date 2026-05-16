@@ -37,3 +37,26 @@ class TestContentFetchService:
 
         await content_service.fetch("http://example.com/page")
         mock_fetcher.fetch.assert_called_once_with("http://example.com/page")
+
+    @pytest.mark.asyncio
+    async def test_fetch_with_summarize(
+        self, content_service: ContentFetchService, mock_fetcher: AsyncMock,
+    ) -> None:
+        result = ContentResult(url="http://example.com", title="Page Title", text="Summary text")
+        mock_summarized_fetcher = AsyncMock()
+        mock_summarized_fetcher.fetch = AsyncMock(return_value=result)
+
+        content_service._summarized_content_fetcher = mock_summarized_fetcher
+
+        response = await content_service.summarize_fetch("http://example.com")
+
+        assert response.url == "http://example.com"
+        mock_fetcher.fetch.assert_not_called()
+        mock_summarized_fetcher.fetch.assert_called_once_with("http://example.com")
+
+    @pytest.mark.asyncio
+    async def test_fetch_with_summarize_error(
+        self, content_service: ContentFetchService,
+    ) -> None:
+        with pytest.raises(RuntimeError, match="SummarizedContentFetcher not configured"):
+            await content_service.summarize_fetch("http://example.com")
