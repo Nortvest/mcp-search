@@ -22,6 +22,7 @@ dependencies = [
     "readability-lxml>=0.8.4.1",
     "sumy>=0.12.0",
     "langdetect>=1.0.9",
+    "numpy>=1.26.0",
 ]
 
 [dependency-groups]
@@ -45,3 +46,7 @@ warn_unused_configs = true
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 asyncio_mode = "auto"
+
+[[tool.mypy.overrides]]
+module = ["sumy.*", "langdetect.*"]
+ignore_missing_imports = true

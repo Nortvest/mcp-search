@@ -45,3 +45,9 @@ class EngineFetcher(ABC):
     @abstractmethod
     async def fetch(self, params: dict[str, Any]) -> SearchResponse:
         raise NotImplementedError
+
+
+class Summarizer(ABC):
+    @abstractmethod
+    def summarize(self, text: str) -> str:
+        raise NotImplementedError

@@ -24,7 +24,7 @@ class TestEngineConfig:
 class TestAppSettings:
     def test_defaults(self) -> None:
         settings = AppSettings()
-        assert settings.host == "0." + "0" + ".0" + ".0"
+        assert settings.host == "0.0.0.0"  # noqa: S104
         assert settings.port == 8080
         assert settings.mcp_name == "mcp-search"
         assert settings.default_engine == "SEARXNG"
@@ -32,36 +32,36 @@ class TestAppSettings:
         assert int(settings.request_timeout) == 10
         assert settings.log_level == "INFO"
         assert settings.summary.enable is True
-        assert settings.summary.max_words == 128
+        assert settings.summary.max_sentences == 128
         assert settings.summary.max_content_length_readability == 512000
 
     def test_summary_settings_defaults(self) -> None:
         cfg = SummarySettings()
         assert cfg.enable is True
-        assert cfg.max_words == 128
+        assert cfg.max_sentences == 128
         assert cfg.max_content_length_readability == 512000
 
     def test_summary_settings_custom_values(self) -> None:
-        cfg = SummarySettings(enable=False, max_words=64, max_content_length_readability=256000)
+        cfg = SummarySettings(enable=False, max_sentences=64, max_content_length_readability=256000)
         assert cfg.enable is False
-        assert cfg.max_words == 64
+        assert cfg.max_sentences == 64
         assert cfg.max_content_length_readability == 256000
 
     def test_summary_settings_env_prefix(self, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setenv("SUMMARY_ENABLE", "false")
-        monkeypatch.setenv("SUMMARY_MAX_WORDS", "50")
+        monkeypatch.setenv("SUMMARY_MAX_SENTENCES", "50")
         monkeypatch.setenv("SUMMARY_MAX_CONTENT_LENGTH_READABILITY", "100000")
         cfg = SummarySettings()
         assert cfg.enable is False
-        assert cfg.max_words == 50
+        assert cfg.max_sentences == 50
         assert cfg.max_content_length_readability == 100000
 
     def test_app_settings_summary_via_env(self, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setenv("SUMMARY_ENABLE", "false")
-        monkeypatch.setenv("SUMMARY_MAX_WORDS", "200")
+        monkeypatch.setenv("SUMMARY_MAX_SENTENCES", "200")
         summary_cfg = SummarySettings()
         assert summary_cfg.enable is False
-        assert summary_cfg.max_words == 200
+        assert summary_cfg.max_sentences == 200
 
     def test_app_settings_summary_default_in_composition(self) -> None:
         settings = AppSettings()

@@ -16,7 +16,7 @@ class EngineConfig(BaseSettings):
 
 class SummarySettings(BaseSettings):
     enable: bool = True
-    max_words: int = 128
+    max_sentences: int = 128
     max_content_length_readability: int = 512000
 
     model_config = SettingsConfigDict(env_prefix="SUMMARY_", env_file=".env", extra="ignore")
