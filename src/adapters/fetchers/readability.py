@@ -1,5 +1,9 @@
-from html2text import html2text
-from readability import Document as ReadabilityDocument
+import re
+from typing import Any
+
+from lxml.etree import ParserError
+from readability.readability import Unparseable
+from readability import Document
 
 from src.adapters.base import ContentFetcher
 from src.core.http_client import HttpClient
@@ -7,6 +11,8 @@ from src.domain.models import ContentResult
 
 
 class ReadabilityContentFetcher(ContentFetcher):
+    _MIN_TEXT_LENGTH = 10
+
     def __init__(self, http_client: HttpClient) -> None:
         super().__init__()
         self.http_client = http_client
@@ -16,20 +22,23 @@ class ReadabilityContentFetcher(ContentFetcher):
         response = await self.http_client.get(url=url)
         html = response.read().decode("utf-8", errors="replace")
 
-        if not html.strip():
-            self._logger.warning("ReadabilityContentFetcher.fetch html is empty")
-            return ContentResult(url=url, title=url, text="")
+        doc = Document(input=html)
+        title, text = self._extract_content(doc, url)
+        return ContentResult(url=url, title=title, text=text)
 
-        doc = ReadabilityDocument(html, url=url)
-        title = doc.title() or ""
-        if not title.strip() or title == "[no-title]":
-            title = url
-            self._logger.warning(
-                "ReadabilityContentFetcher.fetch no title found url=%s using fallback",
-                url,
-            )
+    def _extract_content(self, doc: Any, fallback_title: str) -> tuple[str, str]:
+        try:
+            title = doc.title() or fallback_title
+            if not title.strip() or title == "[no-title]":
+                title = fallback_title
+            content_html = str(doc.content())
+            text = re.sub(r"<[^>]+>", "", content_html)
+            text = " ".join(text.split())
+        except (Unparseable, ParserError):
+            self._logger.warning("ReadabilityContentFetcher failed to extract content url=%s", fallback_title)
+            return fallback_title, ""
 
-        summary_html = doc.summary()
-        text = html2text(summary_html)
+        if len(text) < self._MIN_TEXT_LENGTH:
+            text = ""
 
-        return ContentResult(url=url, title=title.strip(), text=text)
+        return title, text

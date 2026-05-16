@@ -2,6 +2,8 @@ from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from src.adapters.base import ContentFetcher, EngineFetcher, SearchEngineAdapter
+    from src.adapters.fetchers.readability import ReadabilityContentFetcher
+    from src.adapters.fetchers.summarized_content import SummarizedContentFetcher
     from src.core.config import AppSettings
 
 
@@ -15,6 +17,8 @@ class DependencyContainer:
         self._adapters: dict[str, type["SearchEngineAdapter"]] = {}
         self._engine_fetchers: dict[str, "EngineFetcher"] = {}
         self._content_fetcher: "ContentFetcher | None" = None
+        self._readability_fetcher: "ReadabilityContentFetcher | None" = None
+        self._summarized_content_fetcher: "SummarizedContentFetcher | None" = None
         self._cached_adapters: dict[str, "SearchEngineAdapter"] = {}
 
     def build(self) -> "DependencyContainer":
@@ -30,6 +34,8 @@ class DependencyContainer:
         self._register_adapters()
         self._create_fetchers()
         self._create_content_fetcher()
+        self._create_readability_fetcher()
+        self._create_summarized_content_fetcher()
         return self
 
     @classmethod
@@ -70,6 +76,34 @@ class DependencyContainer:
             http_client=self._http_client,
         )
 
+    def _create_readability_fetcher(self) -> None:
+        """Instantiate the readability-based content fetcher."""
+        from src.adapters.fetchers.readability import ReadabilityContentFetcher  # noqa: PLC0415
+        from src.core.http_client import HttpClient  # noqa: PLC0415
+
+        high_limit_client = HttpClient(
+            timeout=self.settings.request_timeout,
+            max_content_length=self.settings.summary.max_content_length_readability,
+        )
+        self._readability_fetcher = ReadabilityContentFetcher(
+            http_client=high_limit_client,
+        )
+
+    def _create_summarized_content_fetcher(self) -> None:
+        """Instantiate the summarized content fetcher."""
+        from src.adapters.summarizer import SumySummarizer  # noqa: PLC0415
+
+        if self._readability_fetcher is None:
+            raise RuntimeError("ReadabilityContentFetcher not initialized")
+
+        summarizer = SumySummarizer(max_sentences=self.settings.summary.max_sentences)
+        from src.adapters.fetchers.summarized_content import SummarizedContentFetcher  # noqa: PLC0415
+
+        self._summarized_content_fetcher = SummarizedContentFetcher(
+            readability_fetcher=self._readability_fetcher,
+            summarizer=summarizer,
+        )
+
     def get_adapter(self, engine_name: str) -> "SearchEngineAdapter":
         """Return the cached adapter instance for an engine. Same instance on every call."""
         if engine_name in self._cached_adapters:
@@ -88,3 +122,13 @@ class DependencyContainer:
         if self._content_fetcher is None:
             raise RuntimeError("DependencyContainer not built - call build() first")
         return self._content_fetcher
+
+    def get_readability_fetcher(self) -> "ReadabilityContentFetcher":
+        if self._readability_fetcher is None:
+            raise RuntimeError("DependencyContainer not built - call build() first")
+        return self._readability_fetcher
+
+    def get_summarized_content_fetcher(self) -> "SummarizedContentFetcher":
+        if self._summarized_content_fetcher is None:
+            raise RuntimeError("DependencyContainer not built - call build() first")
+        return self._summarized_content_fetcher
