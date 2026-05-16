@@ -18,7 +18,7 @@ class SumySummarizer(Summarizer):
         try:
             detected: str = detect(text)
         except LangDetectException:
-            detected: str = "en"
+            detected = "en"
 
         lang = Language(detected) if detected in Language else Language.en
 
