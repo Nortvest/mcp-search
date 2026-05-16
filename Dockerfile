@@ -6,10 +6,9 @@ ENV PYTHONUNBUFFERED=1
 ENV PYTHONPATH=/app
 
 COPY pyproject.toml uv.lock ./
-RUN pip install uv && uv sync --frozen --no-install-project
-RUN uv run - "import nltk;nltk.download('punkt')"
-
 COPY src/ src/
+RUN pip install uv && uv sync --frozen
+RUN uv run - "import nltk;nltk.download('punkt')"
 
 EXPOSE 8080
 
