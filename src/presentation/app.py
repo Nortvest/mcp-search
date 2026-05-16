@@ -9,6 +9,7 @@ from src.server import mcp_server as mcp_module
 def install_nltk_deps():
     import nltk
     nltk.download('punkt')
+    nltk.download('punkt_tab')
 
 
 @asynccontextmanager
