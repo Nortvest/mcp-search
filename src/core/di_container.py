@@ -64,7 +64,7 @@ class DependencyContainer:
 
     def _create_content_fetcher(self) -> None:
         """Instantiate the global content fetcher for get_result."""
-        from src.adapters.content_fetcher import ContentFetcherImpl  # noqa: PLC0415
+        from src.adapters.fetchers.content import ContentFetcherImpl  # noqa: PLC0415
 
         self._content_fetcher = ContentFetcherImpl(
             http_client=self._http_client,

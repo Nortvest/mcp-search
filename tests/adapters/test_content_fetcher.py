@@ -2,7 +2,7 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from src.adapters.content_fetcher import ContentFetcherImpl
+from src.adapters.fetchers.content import ContentFetcherImpl
 from src.core.http_client import HttpClient
 from src.domain.models import ContentResult
 
