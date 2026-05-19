@@ -7,6 +7,7 @@ Self-hosted MCP (Model Context Protocol) server for internet search with pluggab
 - **MCP Protocol**: Exposes tools via JSON-RPC 2.0 over HTTP
 - **Pluggable Engines**: Architecture-ready for adding new search engines (Google, Brave, Tavily, etc.)
 - **Content Fetching**: Retrieve full page content from search results
+- **Deep Search**: Combined search + content fetching + summarization in a single tool call
 - **Docker Deployment**: Single-command deployment with docker-compose
 
 ## Quick Start
@@ -69,7 +70,7 @@ All configuration is done via environment variables in the `.env` file. See `.en
 
 ## MCP Tools
 
-The server exposes three tools via MCP JSON-RPC over HTTP.
+The server exposes six tools via MCP JSON-RPC over HTTP.
 
 ### Tool 1: `search`
 
@@ -104,6 +105,40 @@ Fetches full content from a URL returned by search.
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
 | url | string | yes | URL to fetch content from |
+
+### Tool 4: `fetch_and_summarize_website`
+
+Fetches full content from a URL and returns a concise summary.
+
+**Parameters:**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| url | string | yes | URL to fetch and summarize content from |
+
+### Tool 5: `deep_search`
+
+Searches the internet, then fetches and summarizes content from top results for deeper analysis. Combines search and content summarization in a single tool call, returning enriched results with snippet + full summarized content.
+
+**Parameters:**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| query | string | yes | Search query |
+| language | string | no | Language code, must be 2-letter ISO code (default: `"auto"`) |
+| categories | string | no | SearXNG categories, comma-separated (default: `"general"`) |
+| engine | string | no | Engine name from config (default: `DEFAULT_ENGINE`) |
+| num_results | integer | no | Number of results (default: `10`, max: `50`) |
+
+### Tool 6: `deep_search_batch`
+
+Deep search with multiple queries — searches and fetches+summarizes content from top results for each query in parallel.
+
+**Parameters:**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| queries | array of objects | yes | Array of search query objects (same parameters as `deep_search`) |
 
 
 ### MCP Endpoint
