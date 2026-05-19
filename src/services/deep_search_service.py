@@ -1,6 +1,7 @@
 import asyncio
 import logging
 
+from src.core.exceptions import MaxContentLengthError
 from src.domain.models import ContentResult, SearchBatchResult, SearchQuery, SearchResult
 from src.services.content_service import ContentFetchService
 from src.services.search_service import SearchService
@@ -54,6 +55,8 @@ class DeepSearchService:
     async def _fetch_content_safe(self, url: str) -> ContentResult | None:
         try:
             return await self._content_service.summarize_fetch(url=url)
+        except MaxContentLengthError as e:
+            self._logger.warning(str(e))
         except Exception:
             self._logger.exception("Failed to fetch content from url")
             return None

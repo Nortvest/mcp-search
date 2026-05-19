@@ -2,6 +2,7 @@ import html
 import re
 from typing import Any
 
+from charset_normalizer import from_bytes
 from lxml.etree import ParserError
 from readability import Document
 from readability.readability import Unparseable
@@ -21,7 +22,9 @@ class ReadabilityContentFetcher(ContentFetcher):
     async def fetch(self, url: str) -> ContentResult:
         self._logger.debug("ReadabilityContentFetcher.fetch url=%s", url)
         response = await self.http_client.get(url=url)
-        raw_html = response.read().decode("utf-8", errors="replace")
+        raw_html = response.read()
+        decoded = from_bytes(raw_html).best()
+        raw_html = str(decoded) if decoded else raw_html.decode("utf-8", errors="replace")
 
         doc = Document(input=raw_html)
         title, text = self._extract_content(doc, url)

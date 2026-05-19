@@ -2,6 +2,8 @@ from typing import Any, Mapping, override
 
 import httpx
 
+from src.core.exceptions import MaxContentLengthError
+
 
 class HttpClient(httpx.AsyncClient):
     def __init__(self, timeout: float = 10.0, max_content_length: int = 50000) -> None:
@@ -36,7 +38,5 @@ class HttpClient(httpx.AsyncClient):
         )
         body = response.read()
         if len(body) > self.max_content_length:
-            raise ValueError(
-                f"Response exceeds max content length of {self.max_content_length}. Context length: {len(body)}",
-            )
+            raise MaxContentLengthError(content_length=len(body), max_content_length=self.max_content_length)
         return response

@@ -1,4 +1,4 @@
-
+from charset_normalizer import from_bytes
 from fake_useragent import UserAgent
 from html2text import html2text
 
@@ -17,7 +17,9 @@ class ContentFetcherImpl(ContentFetcher):
         self._logger.debug("ContentFetcherImpl.fetch url=%s", url)
         headers = {"User-Agent": self._user_agent.random}
         response = await self.http_client.get(url=url, headers=headers)
-        html = response.read().decode("utf-8", errors="replace")
+        raw_html = response.read()
+        decoded = from_bytes(raw_html).best()
+        html = str(decoded) if decoded else raw_html.decode("utf-8", errors="replace")
         text = html2text(html)
         try:
             start = html.lower().index("<title>") + 7
