@@ -17,7 +17,9 @@ class SearchInput(BaseModel):
     @field_validator("language")
     @classmethod
     def validate_language(cls, v: str) -> str:
-        if v in {"auto"} or len(v) != ISO_LANGUAGE_LENGTH or not v.isalpha():
+        custom_langs = {"auto"}
+
+        if v in custom_langs or len(v) != ISO_LANGUAGE_LENGTH or not v.isalpha():
             raise ValueError("language must be a 2-letter ISO code (e.g. 'en')")
         return v.lower()
 
