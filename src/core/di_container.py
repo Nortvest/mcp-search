@@ -154,7 +154,7 @@ class DependencyContainer:
     def get_content_fetch_service_with_summarize(self) -> "ContentFetchService":
         from src.services.content_service import ContentFetchService  # noqa: PLC0415
 
-        content_fetcher = self.get_content_fetcher()
+        content_fetcher = self.get_readability_fetcher()
         summarized_content_fetcher = self.get_summarized_content_fetcher()
         return ContentFetchService(
             content_fetcher=content_fetcher,
