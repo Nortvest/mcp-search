@@ -7,12 +7,12 @@ from mcp.types import Icon
 
 from src.domain.models import SearchQuery
 from src.server.schemas import GetResultOutput, SearchBatchOutput, SearchInput, SearchOutput
-from src.services.content_service import ContentFetchService
-from src.services.deep_search_service import DeepSearchService
-from src.services.search_service import SearchService
 
 if TYPE_CHECKING:
     from src.core.di_container import DependencyContainer
+    from src.services.search_service import SearchService
+    from src.services.content_service import ContentFetchService
+    from src.services.deep_search_service import DeepSearchService
 
 mcp = FastMCP("mcp-search")
 
@@ -32,8 +32,7 @@ async def search(
     )
 
     container: "DependencyContainer" = ctx.fastmcp.container  # type: ignore[attr-defined]
-    search_adapter = container.get_adapter(container.settings.default_engine)
-    service = SearchService(adapter=search_adapter)
+    service: "SearchService" = container.get_search_service()
 
     item = SearchQuery(
         query=query.query,
@@ -60,8 +59,7 @@ async def search_batch(
     logging.getLogger("mcp-search").info(f"Batch search with {len(queries)} queries")
 
     container: "DependencyContainer" = ctx.fastmcp.container  # type: ignore[attr-defined]
-    search_adapter = container.get_adapter(container.settings.default_engine)
-    service = SearchService(adapter=search_adapter)
+    service: "SearchService" = container.get_search_service()
 
     batch_items = [
         SearchQuery(
@@ -89,8 +87,7 @@ async def fetch_website(
     logging.getLogger("mcp-search").info(f"Fetch Website {url}")
 
     container: "DependencyContainer" = ctx.fastmcp.container  # type: ignore[attr-defined]
-    content_fetcher = container.get_content_fetcher()
-    service = ContentFetchService(content_fetcher=content_fetcher)
+    service: "ContentFetchService" = container.get_content_fetch_service()
 
     content = await service.fetch(url=url)
     return GetResultOutput(url=content.url, title=content.title, text=content.text)
@@ -108,12 +105,7 @@ async def fetch_and_summarize_website(
     logging.getLogger("mcp-search").info(f"Fetch and Summarize Website {url}")
 
     container: "DependencyContainer" = ctx.fastmcp.container  # type: ignore[attr-defined]
-    content_fetcher = container.get_content_fetcher()
-    summarized_content_fetcher = container.get_summarized_content_fetcher()
-    service = ContentFetchService(
-        content_fetcher=content_fetcher,
-        summarized_content_fetcher=summarized_content_fetcher,
-    )
+    service = container.get_content_fetch_service_with_summarize()
 
     content = await service.summarize_fetch(url=url)
     return GetResultOutput(url=content.url, title=content.title, text=content.text)
@@ -137,15 +129,7 @@ async def deep_search(
     )
 
     container: "DependencyContainer" = ctx.fastmcp.container  # type: ignore[attr-defined]
-    search_adapter = container.get_adapter(container.settings.default_engine)
-    search_service = SearchService(adapter=search_adapter)
-    content_fetcher = container.get_content_fetcher()
-    summarized_content_fetcher = container.get_summarized_content_fetcher()
-    content_service = ContentFetchService(
-        content_fetcher=content_fetcher,
-        summarized_content_fetcher=summarized_content_fetcher,
-    )
-    deep_search_service = DeepSearchService(search_service=search_service, content_service=content_service)
+    deep_search_service: "DeepSearchService" = container.get_deep_search_service()
 
     item = SearchQuery(
         query=query.query,
@@ -173,15 +157,7 @@ async def deep_search_batch(
     logger.info(f"Deep batch search with {len(queries)} queries")
 
     container: "DependencyContainer" = ctx.fastmcp.container  # type: ignore[attr-defined]
-    search_adapter = container.get_adapter(container.settings.default_engine)
-    search_service = SearchService(adapter=search_adapter)
-    content_fetcher = container.get_content_fetcher()
-    summarized_content_fetcher = container.get_summarized_content_fetcher()
-    content_service = ContentFetchService(
-        content_fetcher=content_fetcher,
-        summarized_content_fetcher=summarized_content_fetcher,
-    )
-    deep_search_service = DeepSearchService(search_service=search_service, content_service=content_service)
+    deep_search_service: "DeepSearchService" = container.get_deep_search_service()
 
     batch_items = [
         SearchQuery(

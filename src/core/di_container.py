@@ -1,10 +1,14 @@
 from typing import TYPE_CHECKING, Any
 
+
 if TYPE_CHECKING:
     from src.adapters.base import ContentFetcher, EngineFetcher, SearchEngineAdapter
     from src.adapters.fetchers.readability import ReadabilityContentFetcher
     from src.adapters.fetchers.summarized_content import SummarizedContentFetcher
     from src.core.config import AppSettings
+    from src.services.search_service import SearchService
+    from src.services.content_service import ContentFetchService
+    from src.services.deep_search_service import DeepSearchService
 
 
 class DependencyContainer:
@@ -132,3 +136,34 @@ class DependencyContainer:
         if self._summarized_content_fetcher is None:
             raise RuntimeError("DependencyContainer not built - call build() first")
         return self._summarized_content_fetcher
+
+    # --- services registry ---
+
+    def get_search_service(self) -> "SearchService":
+        from src.services.search_service import SearchService  # noqa: PLC0415
+
+        search_adapter = self.get_adapter(self.settings.default_engine)
+        return SearchService(adapter=search_adapter)
+
+    def get_content_fetch_service(self) -> "ContentFetchService":
+        from src.services.content_service import ContentFetchService  # noqa: PLC0415
+
+        content_fetcher = self.get_content_fetcher()
+        return ContentFetchService(content_fetcher=content_fetcher)
+
+    def get_content_fetch_service_with_summarize(self) -> "ContentFetchService":
+        from src.services.content_service import ContentFetchService  # noqa: PLC0415
+
+        content_fetcher = self.get_content_fetcher()
+        summarized_content_fetcher = self.get_summarized_content_fetcher()
+        return ContentFetchService(
+            content_fetcher=content_fetcher,
+            summarized_content_fetcher=summarized_content_fetcher,
+        )
+
+    def get_deep_search_service(self) -> "DeepSearchService":
+        from src.services.deep_search_service import DeepSearchService  # noqa: PLC0415
+
+        search_service = self.get_search_service()
+        content_service = self.get_content_fetch_service_with_summarize()
+        return DeepSearchService(search_service=search_service, content_service=content_service)
