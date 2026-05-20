@@ -23,26 +23,26 @@ mcp = FastMCP("mcp-search")
     icons=[Icon(src="https://docs.searxng.org/_static/searxng-wordmark.svg", mimeType="image/svg+xml")],
 )
 async def search(
-    query: SearchInput,
+    item: SearchInput,
 
     ctx: Context = CurrentContext(),  # noqa: B008
 ) -> SearchOutput:
     logging.getLogger("mcp-search").info(
-        f"Search by {query.query=}. {query.language=}. {query.categories=}. {query.num_results=}",
+        f"Search by {item.query=}. {item.language=}. {item.categories=}. {item.num_results=}",
     )
 
     container: "DependencyContainer" = ctx.fastmcp.container  # type: ignore[attr-defined]
     service: "SearchService" = container.get_search_service()
 
-    item = SearchQuery(
-        query=query.query,
-        language=query.language,
-        categories=query.categories,
-        engine=query.engine or "",
-        num_results=query.num_results,
+    item_dto = SearchQuery(
+        query=item.query,
+        language=item.language,
+        categories=item.categories,
+        engine=item.engine or "",
+        num_results=item.num_results,
     )
 
-    results = await service.search(item)
+    results = await service.search(item_dto)
     return SearchOutput(results=results)
 
 
@@ -117,29 +117,29 @@ async def fetch_and_summarize_website(
     icons=[Icon(src="https://docs.searxng.org/_static/searxng-wordmark.svg", mimeType="image/svg+xml")],
 )
 async def deep_search(
-    query: SearchInput,
+    item: SearchInput,
 
     ctx: Context = CurrentContext(),  # noqa: B008
 ) -> SearchOutput:
     logging.getLogger("mcp-search").info(
-        f"Deep search by {query.query=}. "
-        f"{query.language=}. "
-        f"{query.categories=}. "
-        f"{query.num_results=}",
+        f"Deep search by {item.query=}. "
+        f"{item.language=}. "
+        f"{item.categories=}. "
+        f"{item.num_results=}",
     )
 
     container: "DependencyContainer" = ctx.fastmcp.container  # type: ignore[attr-defined]
     deep_search_service: "DeepSearchService" = container.get_deep_search_service()
 
-    item = SearchQuery(
-        query=query.query,
-        language=query.language,
-        categories=query.categories,
-        engine=query.engine or "",
-        num_results=query.num_results,
+    item_dto = SearchQuery(
+        query=item.query,
+        language=item.language,
+        categories=item.categories,
+        engine=item.engine or "",
+        num_results=item.num_results,
     )
 
-    results = await deep_search_service.search(item)
+    results = await deep_search_service.search(item_dto)
     return SearchOutput(results=results)
 
 
