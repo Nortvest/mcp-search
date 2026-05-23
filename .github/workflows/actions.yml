@@ -39,5 +39,7 @@ jobs:
           enable-cache: true
       - name: Install punkt_tab
         run: python -c "import nltk; nltk.download('punkt_tab')"
+        with:
+          enable-cache: true
       - name: Run tests
         run: uv run pytest
