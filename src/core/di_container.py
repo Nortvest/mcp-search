@@ -1,14 +1,13 @@
 from typing import TYPE_CHECKING, Any
 
-
 if TYPE_CHECKING:
     from src.adapters.base import ContentFetcher, EngineFetcher, SearchEngineAdapter
     from src.adapters.fetchers.readability import ReadabilityContentFetcher
     from src.adapters.fetchers.summarized_content import SummarizedContentFetcher
     from src.core.config import AppSettings
-    from src.services.search_service import SearchService
     from src.services.content_service import ContentFetchService
     from src.services.deep_search_service import DeepSearchService
+    from src.services.search_service import SearchService
 
 
 class DependencyContainer:

@@ -3,6 +3,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import httpx
 import pytest
 
+from src.core.exceptions import MaxContentLengthError
 from src.core.http_client import HttpClient
 
 
@@ -63,7 +64,7 @@ class TestHttpClient:
 
             with patch.object(httpx.AsyncClient, "get", return_value=mock_resp):
                 client = HttpClient(max_content_length=50000)
-                with pytest.raises(ValueError, match="exceeds max content length"):
+                with pytest.raises(MaxContentLengthError, match="exceeds max content length"):
                     await client.get("http://example.com")
 
     @pytest.mark.asyncio

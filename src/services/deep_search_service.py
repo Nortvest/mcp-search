@@ -59,7 +59,8 @@ class DeepSearchService:
             self._logger.warning(str(e))
         except Exception:
             self._logger.exception("Failed to fetch content from url")
-            return None
+
+        return None
 
     async def _deep_search_one(self, item: SearchQuery) -> SearchBatchResult:
         enriched = await self.search(query=item)

@@ -10,9 +10,9 @@ from src.server.schemas import GetResultOutput, SearchBatchOutput, SearchInput, 
 
 if TYPE_CHECKING:
     from src.core.di_container import DependencyContainer
-    from src.services.search_service import SearchService
     from src.services.content_service import ContentFetchService
     from src.services.deep_search_service import DeepSearchService
+    from src.services.search_service import SearchService
 
 mcp = FastMCP("mcp-search")
 

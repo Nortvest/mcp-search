@@ -24,9 +24,9 @@ class ReadabilityContentFetcher(ContentFetcher):
         response = await self.http_client.get(url=url)
         raw_html = response.read()
         decoded = from_bytes(raw_html).best()
-        raw_html = str(decoded) if decoded else raw_html.decode("utf-8", errors="replace")
+        raw_html_str = str(decoded) if decoded else raw_html.decode("utf-8", errors="replace")
 
-        doc = Document(input=raw_html)
+        doc = Document(input=raw_html_str)
         title, text = self._extract_content(doc, url)
         return ContentResult(url=url, title=title, text=text)
 
