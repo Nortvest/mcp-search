@@ -3,7 +3,6 @@ from typing import TYPE_CHECKING
 
 from fastmcp import Context, FastMCP
 from fastmcp.server.dependencies import CurrentContext
-from mcp.types import Icon
 
 from src.domain.models import SearchQuery
 from src.server.schemas import GetResultOutput, SearchBatchOutput, SearchInput, SearchOutput
@@ -20,7 +19,6 @@ mcp = FastMCP("mcp-search")
 @mcp.tool(
     name="search",
     description="Search the internet using a configured search engine.",
-    icons=[Icon(src="https://docs.searxng.org/_static/searxng-wordmark.svg", mimeType="image/svg+xml")],
 )
 async def search(
     item: SearchInput,
@@ -49,7 +47,6 @@ async def search(
 @mcp.tool(
     name="search_batch",
     description="Search the internet using a configured search engine with multiple queries at once.",
-    icons=[Icon(src="https://docs.searxng.org/_static/searxng-wordmark.svg", mimeType="image/svg+xml")],
 )
 async def search_batch(
     queries: list[SearchInput],
@@ -114,7 +111,6 @@ async def fetch_and_summarize_website(
 @mcp.tool(
     name="deep_search",
     description="Search the internet and fetch+summarize content from top results for deeper analysis.",
-    icons=[Icon(src="https://docs.searxng.org/_static/searxng-wordmark.svg", mimeType="image/svg+xml")],
 )
 async def deep_search(
     item: SearchInput,
@@ -139,14 +135,13 @@ async def deep_search(
         num_results=item.num_results,
     )
 
-    results = await deep_search_service.search(item_dto)
+    results = await deep_search_service.search(item_dto, ctx=ctx)
     return SearchOutput(results=results)
 
 
 @mcp.tool(
     name="deep_search_batch",
     description="Deep search with multiple queries — searches and fetches+summarizes content from top results.",
-    icons=[Icon(src="https://docs.searxng.org/_static/searxng-wordmark.svg", mimeType="image/svg+xml")],
 )
 async def deep_search_batch(
     queries: list[SearchInput],
@@ -169,5 +164,5 @@ async def deep_search_batch(
         )
         for q in queries
     ]
-    results = await deep_search_service.search_batch(queries=batch_items)
+    results = await deep_search_service.search_batch(queries=batch_items, ctx=ctx)
     return SearchBatchOutput(results=results)
