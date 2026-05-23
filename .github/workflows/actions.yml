@@ -37,5 +37,7 @@ jobs:
         uses: astral-sh/setup-uv@v8.0.0
         with:
           enable-cache: true
+      - name: Install punkt_tab
+        run: python -c "import nltk; nltk.download('punkt_tab')"
       - name: Run tests
         run: uv run pytest
