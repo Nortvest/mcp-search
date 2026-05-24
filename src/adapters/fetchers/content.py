@@ -1,3 +1,4 @@
+import httpx
 from charset_normalizer import from_bytes
 from fake_useragent import UserAgent
 from html2text import html2text
@@ -13,10 +14,16 @@ class ContentFetcherImpl(ContentFetcher):
         self.http_client = http_client
         self._user_agent = UserAgent()
 
-    async def fetch(self, url: str) -> ContentResult:
+    async def fetch(self, url: str) -> ContentResult:  # noqa: PLR0915
         self._logger.debug("ContentFetcherImpl.fetch url=%s", url)
         headers = {"User-Agent": self._user_agent.random}
-        response = await self.http_client.get(url=url, headers=headers)
+
+        try:
+            response = await self.http_client.get(url=url, headers=headers)
+        except httpx.HTTPError as e:
+            self._logger.warning("ContentFetcherImpl.fetch url=%s error=%s", url, e)
+            return ContentResult(url=url, title="NO DATA", text="NO DATA")
+
         raw_html = response.read()
         decoded = from_bytes(raw_html).best()
         html = str(decoded) if decoded else raw_html.decode("utf-8", errors="replace")

@@ -1,6 +1,7 @@
 import json
 from typing import Any
 
+import httpx
 from fake_useragent import UserAgent
 
 from src.adapters.base import EngineFetcher, SearchEngineAdapter
@@ -21,14 +22,21 @@ class SearXNGEngineFetcher(EngineFetcher):
 
         self._logger.debug("SearXNGEngineFetcher.fetch url=%s params=%s", f"{self.base_url}/json", params)
 
-        response = await self.http_client.get(
-            url=f"{self.base_url}/search", params=params, headers=headers,
-        )
+        try:
+            response = await self.http_client.get(
+                url=f"{self.base_url}/search", params=params, headers=headers,
+            )
+        except httpx.HTTPError as e:
+            self._logger.warning(f"SearXNGEngineFetcher.fetch http exception={e}")
+            return SearchResponse(results=[])
 
         try:
             data = json.loads(response.read())
         except json.decoder.JSONDecodeError as e:
-            raise RuntimeError(f"{response.status_code} | {response.read()!r}") from e
+            self._logger.warning(
+                f"SearXNGEngineFetcher.fetch http exception={e} | {response.status_code} | {response.read()!r}",
+            )
+            return SearchResponse(results=[])
 
         results = []
         for item in data.get("results", []):

@@ -79,7 +79,7 @@ class DeepSearchService:
         except MaxContentLengthError as e:
             self._logger.warning(str(e))
         except Exception:
-            self._logger.exception("Failed to fetch content from url")
+            self._logger.exception(f"Failed to fetch content from {url=}")
 
         return None
 
