@@ -20,7 +20,7 @@ class DeepSearchService:
     def _logger(self) -> logging.Logger:
         return logging.getLogger("mcp-search")
 
-    async def search(self, query: SearchQuery, ctx: "Context | None" = None) -> list[SearchResult]:
+    async def search(self, query: SearchQuery, ctx: "Context | None" = None) -> list[SearchResult]:  # noqa: PLR0915
         search_results = await self._search_service.search(query)
 
         total = len(search_results)
