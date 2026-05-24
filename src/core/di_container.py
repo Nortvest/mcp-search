@@ -15,7 +15,6 @@ class DependencyContainer:
 
     def __init__(self, settings: "AppSettings") -> None:
         self.settings = settings
-        self._logger: Any = None
         self._http_client: Any = None
         self._adapters: dict[str, type["SearchEngineAdapter"]] = {}
         self._engine_fetchers: dict[str, "EngineFetcher"] = {}

@@ -19,6 +19,7 @@ class SummarizedContentFetcher(ContentFetcher):
         full_result = await self._readability_fetcher.fetch(url)
         summarized_text = self._summarizer.summarize(full_result.text)
 
+        self._logger.debug("SummarizedContentFetcher.fetch complete url=%s", url)
         return ContentResult(
             url=full_result.url,
             title=full_result.title,

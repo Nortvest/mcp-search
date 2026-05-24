@@ -35,4 +35,5 @@ class ContentFetcherImpl(ContentFetcher):
         except (ValueError, IndexError):
             self._logger.warning("ContentFetcherImpl.fetch no <title> tag found url=%s", url)
             title = url
+        self._logger.debug("ContentFetcherImpl.fetch complete url=%s", url)
         return ContentResult(url=url, title=title, text=text)

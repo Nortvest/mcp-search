@@ -1,3 +1,4 @@
+import logging
 from typing import Any, Mapping, override
 
 import httpx
@@ -13,6 +14,10 @@ class HttpClient(httpx.AsyncClient):
         )
         self.max_content_length = max_content_length
 
+    @property
+    def _logger(self) -> logging.Logger:
+        return logging.getLogger("mcp-search")
+
     @override
     async def get(
         self,
@@ -26,6 +31,8 @@ class HttpClient(httpx.AsyncClient):
         timeout: Any = None,
         extensions: Mapping[str, Any] | None = None,
     ) -> httpx.Response:
+        self._logger.debug(f"HttpClient.GET start {url=}")
+
         response = await super().get(
             url=url,
             params=params,
@@ -39,4 +46,6 @@ class HttpClient(httpx.AsyncClient):
         body = response.read()
         if len(body) > self.max_content_length:
             raise MaxContentLengthError(content_length=len(body), max_content_length=self.max_content_length)
+
+        self._logger.debug(f"HttpClient.GET complete {url=}")
         return response

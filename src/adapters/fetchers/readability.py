@@ -35,6 +35,7 @@ class ReadabilityContentFetcher(ContentFetcher):
 
         doc = Document(input=raw_html_str)
         title, text = self._extract_content(doc, url)
+        self._logger.debug("ReadabilityContentFetcher.fetch complete url=%s", url)
         return ContentResult(url=url, title=title, text=text)
 
     def _extract_content(self, doc: Any, fallback_title: str) -> tuple[str, str]:
