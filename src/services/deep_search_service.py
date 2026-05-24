@@ -25,6 +25,7 @@ class DeepSearchService:
 
         total = len(search_results)
         if ctx:
+            self._logger.debug(f"DeepSearchService.search start {total=}")
             await ctx.report_progress(progress=0, total=total)
 
         tasks = [self._fetch_content_safe(result.url) for result in search_results]
@@ -33,6 +34,7 @@ class DeepSearchService:
         enriched: list[SearchResult] = []
         for i, (search_result, content) in enumerate(zip(search_results, contents, strict=True)):
             if ctx:
+                self._logger.debug(f"DeepSearchService.search complete {i + 1} / {total}")
                 await ctx.report_progress(progress=i + 1, total=total)
             if content:
                 enriched.append(
@@ -53,11 +55,13 @@ class DeepSearchService:
         gathered = await asyncio.gather(*tasks, return_exceptions=True)
 
         if ctx:
+            self._logger.debug(f"DeepSearchService.search_batch start {total=}")
             await ctx.report_progress(progress=0, total=total)
 
         results: list[SearchBatchResult] = []
         for i, (item, result) in enumerate(zip(queries, gathered, strict=True)):
             if ctx:
+                self._logger.debug(f"DeepSearchService.search_batch complete {i + 1} / {total}")
                 await ctx.report_progress(progress=i + 1, total=total)
             results.append(self._process_batch_result(item, result))
 
