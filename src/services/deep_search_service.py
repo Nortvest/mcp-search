@@ -12,9 +12,15 @@ if TYPE_CHECKING:
 
 
 class DeepSearchService:
-    def __init__(self, search_service: SearchService, content_service: ContentFetchService) -> None:
+    def __init__(
+        self,
+        search_service: SearchService,
+        content_service: ContentFetchService,
+        fetch_timeout: float = 10.0,
+    ) -> None:
         self._search_service = search_service
         self._content_service = content_service
+        self._fetch_timeout = fetch_timeout
 
     @property
     def _logger(self) -> logging.Logger:
@@ -29,7 +35,7 @@ class DeepSearchService:
         if ctx:
             await ctx.report_progress(progress=0, total=total)
 
-        tasks = [self._fetch_content_safe(result.url) for result in search_results]
+        tasks = [self._fetch_content_safe(result.url, timeout=self._fetch_timeout) for result in search_results]
         contents = await asyncio.gather(*tasks)
 
         enriched: list[SearchResult] = []
@@ -80,9 +86,11 @@ class DeepSearchService:
             return result
         return SearchBatchResult(query=item.query, results=[], error=str(result))
 
-    async def _fetch_content_safe(self, url: str) -> ContentResult | None:
+    async def _fetch_content_safe(self, url: str, timeout: float | None = None) -> ContentResult | None:  # noqa: ASYNC109
         try:
-            return await self._content_service.summarize_fetch(url=url)
+            return await asyncio.wait_for(self._content_service.summarize_fetch(url=url), timeout=timeout)
+        except asyncio.TimeoutError:
+            self._logger.warning(f"DeepSearchService.fetch timeout after {timeout}s url={url}")
         except MaxContentLengthError as e:
             self._logger.warning(str(e))
         except Exception:

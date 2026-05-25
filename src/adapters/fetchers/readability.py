@@ -26,7 +26,7 @@ class ReadabilityContentFetcher(ContentFetcher):
         try:
             response = await self.http_client.get(url=url)
         except httpx.HTTPError as e:
-            self._logger.warning("ReadabilityContentFetcher.fetch error=%s", e)
+            self._logger.warning("ReadabilityContentFetcher.fetch url=%s error=%s", url, e)
             return ContentResult(url=url, title="NO DATA", text="NO DATA")
 
         raw_html = response.read()

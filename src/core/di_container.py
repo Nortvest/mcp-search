@@ -164,4 +164,8 @@ class DependencyContainer:
 
         search_service = self.get_search_service()
         content_service = self.get_content_fetch_service_with_summarize()
-        return DeepSearchService(search_service=search_service, content_service=content_service)
+        return DeepSearchService(
+            search_service=search_service,
+            content_service=content_service,
+            fetch_timeout=self.settings.request_timeout,
+        )
