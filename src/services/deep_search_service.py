@@ -40,10 +40,7 @@ class DeepSearchService:
 
         enriched: list[SearchResult] = []
 
-        self._logger.debug(f"~~~~~~~~~~~~ {contents=}")
-
         for i, (search_result, content) in enumerate(zip(search_results, contents, strict=True)):
-            self._logger.debug(f"~~~~~~~~~~~~ {search_result=} | {content=}")
             if ctx:
                 self._logger.debug(f"DeepSearchService.search complete {i + 1} / {total}")
                 await ctx.report_progress(progress=i + 1, total=total)
